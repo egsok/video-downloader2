@@ -72,6 +72,23 @@ Vimeo revoked the anonymous API credentials yt-dlp ships with, so every stable y
 
 Open **Settings → yt-dlp**, tick **Nightly**, press **Check Now**, and restart the app. Once a stable yt-dlp release ships the fix, you can untick it — the app will offer to move you back to the stable channel.
 
+## 🐍 Run from source
+
+Python 3.12 or newer (the release builds use 3.12).
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+python src/main.py
+```
+
+Run the tests with `pytest`.
+
+> Modules inside `src/` import each other without a package prefix (`from utils.config import config_manager`), so `src/` has to be the import root: start the app as `python src/main.py` from the repository root — `tests/conftest.py` puts `src/` on `sys.path` itself. There is no `pip install -e .`.
+
+> `ffmpeg` and `ffprobe` are bundled into the release builds only. Running from source, the app uses them from the repository root if you drop them there, and falls back to your `PATH`.
+
 ## 🔨 Build from source
 
 #### Windows

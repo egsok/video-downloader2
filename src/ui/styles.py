@@ -1,7 +1,7 @@
 """nnv brand theme: the light "sheet" register (kraft paper, two inks).
 
 The whole canvas is one sheet of kraft paper: window, queue, settings. The ink
-wall survives only as the odd solid "clichE" (stamps, filled state chips) — see
+wall survives only as the odd solid "cliché" (stamps, filled state chips) — see
 `brand-guidelines-nnv/references/light.md`, model 3 ("full light incarnation").
 
 Type sizes obey the brand's readability floor (computed px, not tokens):
@@ -54,7 +54,7 @@ COLORS = {
     "line_soft": "rgba(44, 26, 114, 16%)",
     "line": "rgba(44, 26, 114, 28%)",
     "line_strong": "rgba(44, 26, 114, 40%)",
-    # ink wall — kept for the rare solid clichE and the disabled register
+    # ink wall — kept for the rare solid cliché and the disabled register
     "wall": "#160f2c",
     "wall_2": "#1e1640",
     "wall_3": "#0f0a20",

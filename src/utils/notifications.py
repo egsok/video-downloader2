@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 from utils.config import config_manager
+from utils.i18n import tr
 
 
 def get_assets_path() -> Path:
@@ -41,14 +42,14 @@ class NotificationManager:
     def notify_complete(self, title: str):
         """Send completion notification."""
         if config_manager.get('notifications_enabled', True):
-            self._show_toast("Download Complete", title)
+            self._show_toast(tr('notify_complete_title'), title)
         if config_manager.get('sound_enabled', True):
             self._play_sound()
 
     def notify_error(self, title: str, error: str):
         """Send error notification."""
         if config_manager.get('notifications_enabled', True):
-            self._show_toast(f"Download Failed: {title}", error)
+            self._show_toast(tr('notify_error_title', title=title), error)
 
     def _play_sound(self):
         """Play completion sound."""

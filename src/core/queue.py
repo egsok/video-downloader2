@@ -12,6 +12,7 @@ from yt_dlp.utils import DownloadCancelled
 from .downloader import Downloader, VideoInfo, DownloaderError
 from utils.notifications import notification_manager
 from utils.config import config_manager
+from utils.i18n import tr
 
 logger = logging.getLogger(__name__)
 
@@ -261,7 +262,7 @@ class DownloadQueue(QObject):
                 item.progress = 100
                 item.file_path = file_path
                 self.item_updated.emit(item)
-                notification_manager.notify_complete(item.info.title if item.info else "Video")
+                notification_manager.notify_complete(item.info.title if item.info else tr('notify_unknown_video'))
                 logger.info('[%s] Download completed: %s', item_id, file_path)
                 break
 
@@ -275,7 +276,8 @@ class DownloadQueue(QObject):
                 item.status = QueueItemStatus.FAILED
                 item.error = error
                 self.item_updated.emit(item)
-                notification_manager.notify_error(item.info.title if item.info else "Video", error)
+                notification_manager.notify_error(
+                    item.info.title if item.info else tr('notify_unknown_video'), error)
                 logger.error('[%s] Download failed: %s', item_id, error)
                 break
 

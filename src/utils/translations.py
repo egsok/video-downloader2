@@ -144,6 +144,11 @@ TRANSLATIONS = {
         'exit_confirm_title': 'Downloads in Progress',
         'exit_confirm_message': 'Downloads are still in progress. Quit anyway?',
 
+        # System notifications (toasts)
+        'notify_complete_title': 'Download Complete',
+        'notify_error_title': 'Download Failed: {title}',
+        'notify_unknown_video': 'Video',
+
         # Queue item statuses
         'status_waiting': 'Waiting',
         'status_downloading': '{progress}%',
@@ -345,6 +350,11 @@ TRANSLATIONS = {
         # Exit confirmation
         'exit_confirm_title': 'Загрузки выполняются',
         'exit_confirm_message': 'Загрузки ещё не завершены. Всё равно выйти?',
+
+        # System notifications (toasts)
+        'notify_complete_title': 'Загрузка завершена',
+        'notify_error_title': 'Ошибка загрузки: {title}',
+        'notify_unknown_video': 'Видео',
 
         # Queue item statuses
         'status_waiting': 'Ожидание',

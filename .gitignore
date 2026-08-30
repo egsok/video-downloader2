@@ -47,3 +47,6 @@ output/
 logs_dir/
 ci_log.txt
 .bg-shell/
+
+# ── Agent planning drafts (local only: they go stale faster than the code) ──
+.planning/

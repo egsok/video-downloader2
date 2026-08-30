@@ -19,6 +19,13 @@ jobs:
       
       - name: Install dependencies
         run: pip install "pyqt6>=6.11.0" "yt-dlp>=2026.03.17" "pyinstaller>=6.19.0" "winotify>=1.1.0"
+
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          pip install -r requirements-dev.txt
+          pytest -q
       
       - name: Set up Node.js (bundled for YouTube JS solver)
         uses: actions/setup-node@v7
