@@ -104,7 +104,8 @@ def test_every_pattern_key_is_translated():
     # A missing key makes tr() return the key itself, e.g. "err_ssl" in the UI
     keys = {key for _, key in ERROR_PATTERNS}
     keys |= {'err_cookie_file_missing', 'err_no_js_runtime_install',
-             'err_vimeo_auth', 'err_download_failed'}
+             'err_vimeo_auth', 'err_vimeo_login', 'err_vimeo_player_failed',
+             'err_download_failed'}
     for lang, table in TRANSLATIONS.items():
         missing = sorted(keys - table.keys())
         assert not missing, f'{lang} is missing: {missing}'

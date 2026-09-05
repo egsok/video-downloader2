@@ -66,11 +66,11 @@ The extension is open-source and never sends your data anywhere: [github.com/kai
 
 > 🔒 Your `cookies.txt` is a live key to your account — don't share it, and delete it when you're done. If you download a lot, consider using a throwaway Google account.
 
-## 🎬 Vimeo currently needs a yt-dlp nightly build
+## 🎬 Vimeo
 
-Vimeo revoked the anonymous API credentials yt-dlp ships with, so every stable yt-dlp release fails with `HTTP Error 401` ([yt-dlp#17271](https://github.com/yt-dlp/yt-dlp/issues/17271)). The fix is already in the nightly builds.
+If yt-dlp reports `The web client only works when logged-in`, Napotom retries once through Vimeo's embedded player. You do not need to edit the URL: the app always tries the original address first and preserves the access hash for unlisted videos.
 
-Open **Settings → yt-dlp**, tick **Nightly**, press **Check Now**, and restart the app. Once a stable yt-dlp release ships the fix, you can untick it — the app will offer to move you back to the stable channel.
+If the retry fails, the app shows the error and suggests adding **Vimeo cookies** in Settings. Restricted videos may still require authentication. Keep yt-dlp updated through **Settings → yt-dlp** for site compatibility fixes.
 
 ## 🐍 Run from source
 

@@ -7,6 +7,7 @@ import sys
 from dataclasses import dataclass
 from typing import Optional, Callable, List
 from pathlib import Path
+from urllib.parse import parse_qs, urlencode, urlsplit
 
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError, DownloadCancelled
@@ -16,6 +17,8 @@ from utils.config import config_manager
 from utils.i18n import tr
 
 logger = logging.getLogger(__name__)
+
+VIMEO_WEB_LOGIN_ERROR = 'the web client only works when logged-in'
 
 
 class FinalPathCollector(PostProcessor):
@@ -218,6 +221,38 @@ class Downloader:
             opts['ffmpeg_location'] = self.ffmpeg_location
         return opts
 
+    def _with_vimeo_player_fallback(self, url: str, action: Callable,
+                                    cancel_check: Optional[Callable[[], bool]] = None):
+        """Try the original URL first; retry one Vimeo API login failure via its player."""
+        try:
+            return action(url)
+        except (DownloadError, ExtractorError) as error:
+            message = str(error).lower()
+            if '[vimeo]' not in message or VIMEO_WEB_LOGIN_ERROR not in message:
+                raise
+            parts = urlsplit(url)
+            match = re.fullmatch(r'/(\d+)(?:/([\da-f]{10}))?/?', parts.path)
+            if (parts.scheme not in ('http', 'https')
+                    or parts.netloc.lower() not in ('vimeo.com', 'www.vimeo.com')
+                    or not match):
+                raise
+
+        if cancel_check and cancel_check():
+            raise DownloadCancelled('Cancelled by user')
+
+        player_url = f'https://player.vimeo.com/video/{match[1]}'
+        unlisted_hash = match[2] or parse_qs(parts.query).get('h', [None])[0]
+        if unlisted_hash:
+            player_url += '?' + urlencode({'h': unlisted_hash})
+        logger.info('Vimeo API requires login; retrying video %s via player', match[1])
+        try:
+            return action(player_url)
+        except (DownloadError, ExtractorError) as error:
+            logger.error('Vimeo player fallback failed for %s: %s', match[1], error)
+            raise DownloaderError(tr(
+                'err_vimeo_player_failed', error=self._translate_error(error),
+            )) from error
+
     def get_info(self, url: str) -> VideoInfo:
         """Extract video information without downloading."""
         logger.info('Getting video info: %s', url[:80])
@@ -225,7 +260,9 @@ class Downloader:
 
         with yt_dlp.YoutubeDL(opts) as ydl:
             try:
-                info = ydl.extract_info(url, download=False)
+                info = self._with_vimeo_player_fallback(
+                    url, lambda target: ydl.extract_info(target, download=False),
+                )
                 info = ydl.sanitize_info(info)
 
                 logger.info('Video info retrieved: %s (duration: %s)', info.get('title', 'Unknown')[:50], info.get('duration', 0))
@@ -237,6 +274,8 @@ class Downloader:
                     uploader=info.get('uploader'),
                     extractor=info.get('extractor', 'unknown'),
                 )
+            except DownloaderError:
+                raise
             except ExtractorError as e:
                 logger.error('Extractor error for %s: %s', url[:50], e)
                 raise DownloaderError(self._translate_error(e))
@@ -357,7 +396,9 @@ class Downloader:
             try:
                 if cancel_check and cancel_check():
                     raise DownloadCancelled('Cancelled by user')
-                ydl.download([url])
+                self._with_vimeo_player_fallback(
+                    url, lambda target: ydl.download([target]), cancel_check,
+                )
                 if progress_callback:
                     progress_callback(100, 0, 'completed')
                 final_path = collector.filepath or downloaded_file or output_path
@@ -365,6 +406,8 @@ class Downloader:
                 return final_path
             except DownloadCancelled:
                 logger.info('Download cancelled: %s', url[:50])
+                raise
+            except DownloaderError:
                 raise
             except DownloadError as e:
                 logger.error('Download error for %s: %s', url[:50], e)
@@ -376,6 +419,9 @@ class Downloader:
     def _translate_error(self, error: Exception) -> str:
         """Translate yt-dlp errors to user-friendly messages."""
         msg = str(error).lower()
+
+        if '[vimeo]' in msg and VIMEO_WEB_LOGIN_ERROR in msg:
+            return tr('err_vimeo_login')
 
         # Special case: format error when cookie file was configured but not found
         # This often happens when config.json has a path from a different OS
